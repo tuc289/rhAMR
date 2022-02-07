@@ -163,9 +163,7 @@ Do the same thing with different object name for other panel and/or samples
 ***To-do list***
 
 Running regression analysis on each gene - list all R2 and p values
-
 re-creating line plot with multiple lines (indicating each gene)
-
 set-up the cut-off for detecting right LOD
 
 

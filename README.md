@@ -52,8 +52,8 @@ $ export PATH=$PATH:$(pwd)
 // the absolute path to each tool can be entered individually.
 env {
     /* These following tools are required to run AmrPlusPlus*/
-    JAVA = "java" #DELETE THIS LINE
-    TRIMMOMATIC = "trimmomatic-0.36.jar" #CHANGE IT AS "trimmomatic"
+    JAVA = "java" ###############################DELETE THIS LINE###########################
+    TRIMMOMATIC = "trimmomatic-0.36.jar" ######################CHANGE IT AS "trimmomatic"##################
     PYTHON3 = "python3"
     BWA = "bwa"
     SAMTOOLS = "samtools"

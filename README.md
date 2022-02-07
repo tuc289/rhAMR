@@ -88,7 +88,12 @@ nextflow run main_AmrPlusPlus_v2.nf -profile local
                                      --output output --threshold 0
 ```
 ##### Check the results
-
-
+The program will generate multiple directories after it is completed
+```
+Some notable results 
+RunResistome - .type.tsv, .class.tsv, .gene.tsv, .mechanism.tsv for individual samples (#of Hits)
+ResistomeResults - Matrix output from resistome (AMR genes) with #of Hits and database match (AMR_analytic_matrix.csv)
+AlignToAMR - .bam and .sam file abouot alignment results from reads to the database
+```
 
 #### 4. Visualization of the results

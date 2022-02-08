@@ -1,5 +1,6 @@
 library(reshape2)
 library(ggplot2)
+library(dplyr)
 
 for_R <- read.table("~/Downloads/cdc_panel.csv", sep =",", header = T, row.names=1)
 str(for_R)
@@ -24,6 +25,10 @@ p0_plot <- p0_plot[1:4]
 p2_plot <- p2_plot[5:8]
 p2_plot <- cbind(p2_plot_genes, p2_plot)
 
+p0_plot
+
+p0_plot <- aggregate(.~ Gene, data = p0_plot, FUN=sum)
+
 melted_p0 <- melt(p0_plot)
 melted_p2 <- melt(p2_plot)
 
@@ -31,6 +36,29 @@ head(melted_p0)
 melted_p0
 head(melted_p2)
 melted_p2
+
+results_df <- data.frame(matrix(ncol=3, nrow = length(p0_gene_list)))
+colnames(results_df) <- c("Gene", "r-squared", "p-value")
+par(mfrow=c(8,8))
+for (x in 1:length(p0_gene_list)){
+  tryCatch({
+    new_df <- filter(melted_p0, Gene %in% p0_gene_list[x])
+    results_df[x,1] <- p0_gene_list[x]
+    new_df$variable <- c("1", "2", "3")
+    model <- lm(variable ~ log(value), data = new_df)
+    summary <- summary(model)
+    results_df[x,2] <- summary$r.squared
+    results_df[x,3] <- summary$coefficients[8]
+  }, error=function(e){cat("ERROR","from",p0_gene_list[x],"\n")})
+  }
+
+melted_p0_ABRB <- filter(melted_p0, Gene %in% "ACRB")
+melted_p0_ABRB$variable <- c("1", "2", "3")
+model <- lm(variable ~ log(value), data = melted_p0_ABRB)
+summary(model)
+plot(melted_p0_ABRB$variable, log(melted_p0_ABRB$value))
+lines(melted_p0_ABRB$variable, log(melted_p0_ABRB$value))
+
 
 p0_plot = ggplot(melted_p0, aes(x = variable, fill = Gene, y = value)) + 
   #facet_grid(vars(Gene), scales = "free") +

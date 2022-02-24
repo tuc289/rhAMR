@@ -1,97 +1,86 @@
-library(reshape2)
-library(ggplot2)
-library(dplyr)
+#Clustering ABRICATE results on AMRg detection using WGS data from 29 strains (PSU strains)
+#This script is modified from original tutorial - http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/114-mca-multiple-correspondence-analysis-in-r-essentials/
 
-for_R <- read.table("~/Downloads/cdc_panel.csv", sep =",", header = T, row.names=1)
-str(for_R)
-colnames(for_R) <- c("Type", "Class", "Mechanism", "Gene", "p0_1:100", "p0_1:1000", 
-                     "p0_1:10000", "p2_1:1", "p2_1:100", "p2_1:1000", "p2_1:10000")
-for_plot <- for_R[,4:11]
+install.packages(c("FactoMineR", "factoextra"))
 
+library("FactoMineR")
+library("factoextra")
 
-p0_gene_list <- c("ACRA", "ACRB", "ACRD", "ACRE", "ACRF", "ACRS", "AMPH", "ASMA", "BACA", 
-                  "BAER", "BAES", "BLAEC", "CATA", "CPXAR", "CRP", "DFRA", "EMRA", "EMRB", "EMRD",
-                  "EMRK", "EMRR", "EMRY", "EPTA", "EVGS", "GADW", "HNS", "KDPE", "KPNO", "MARA", "MARR", 
-                  "MDFA", "MDTA", "MDTB", "MDTC", "MDTE", "MDTF", "MDTG", "MDTH", "MDTI", "MDTJ",
-                  "MDTK", "MDTN", "MDTO", "MDTP", "MPHA", "MPHB", "MSBA", "MVRC", "PBP4B", "PMRF", 
-                  "ROBA", "SOXS", "TETB")
-p2_gene_list <- c("ACRB", "DFRA", "GADW", "MDTK")
+data <- read.table("~/Desktop/cluster.csv", header =T, sep =",",row.names=1)
+for(i in 2:150){
+  data[,i] <- as.factor(data[,i])
+}
+str(data)
+res.mca <- MCA(data, quali.sup = 1, graph = FALSE)
 
-p0_plot <- filter(for_plot, Gene %in% p0_gene_list)
-p2_plot <- filter(for_plot, Gene %in% p2_gene_list)
-p2_plot_genes <- p2_plot[1]
+plot <- fviz_mca_ind(res.mca, repel=TRUE, ggtheme= theme_minimal(), max.overlaps=10)
+plot_data <- plot$data
+plot_data <- cbind(data[,1:2], plot_data)
+p <- ggplot(plot_data, aes(x=x, y=y, color=Species)) + 
+  geom_point() +
+  geom_text_repel(label= rownames(plot_data), nudge_x= 0.1, size = 3) + 
+  theme_classic() + labs(x = "PC1", y = "PC2")
+p
+ggsave("MCA.tiff", plot = p, device = "tiff", width = 7.5, height = 5, units = "in")
 
-p0_plot <- p0_plot[1:4]
-p2_plot <- p2_plot[5:8]
-p2_plot <- cbind(p2_plot_genes, p2_plot)
+data[] <- lapply(data, function(x) gsub("P", "1", x))
+data[] <- lapply(data, function(x) gsub("A", "0", x))
+for(i in 2:150){
+  data[,i] <- as.numeric(data[,i])
+}
+str(data)
 
-p0_plot
-
-p0_plot <- aggregate(.~ Gene, data = p0_plot, FUN=sum)
-
-melted_p0 <- melt(p0_plot)
-melted_p2 <- melt(p2_plot)
-
-head(melted_p0)
-melted_p0
-head(melted_p2)
-melted_p2
-
-results_df <- data.frame(matrix(ncol=3, nrow = length(p0_gene_list)))
-colnames(results_df) <- c("Gene", "r-squared", "p-value")
-par(mfrow=c(8,8))
-for (x in 1:length(p0_gene_list)){
-  tryCatch({
-    new_df <- filter(melted_p0, Gene %in% p0_gene_list[x])
-    results_df[x,1] <- p0_gene_list[x]
-    new_df$variable <- c("1", "2", "3")
-    model <- lm(variable ~ log(value), data = new_df)
-    summary <- summary(model)
-    results_df[x,2] <- summary$r.squared
-    results_df[x,3] <- summary$coefficients[8]
-  }, error=function(e){cat("ERROR","from",p0_gene_list[x],"\n")})
+df <- data.frame(matrix(ncol=8, nrow = 29))
+colnames(df) <- row.names(data)[30:37]
+rownames(df) <- row.names(data)[1:29]
+for (x in 1:29){
+  strain <- data[x,]
+  for (y in 30:37) {
+    human <- data[y,]
+    combined <- rbind(strain, human)
+    combined <- combined[,-1]
+    for (z in 1:ncol(combined)){
+      if(combined[1,z] == 1 & combined[2,z] == 0){tmp = 1}
+      else{tmp = 0}
+      a[z] = tmp
+      df[x, y-29] = sum(a)
+    } 
   }
+}
+df
 
-melted_p0_ABRB <- filter(melted_p0, Gene %in% "ACRB")
-melted_p0_ABRB$variable <- c("1", "2", "3")
-model <- lm(variable ~ log(value), data = melted_p0_ABRB)
-summary(model)
-plot(melted_p0_ABRB$variable, log(melted_p0_ABRB$value))
-lines(melted_p0_ABRB$variable, log(melted_p0_ABRB$value))
-
-
-p0_plot = ggplot(melted_p0, aes(x = variable, fill = Gene, y = value)) + 
-  #facet_grid(vars(Gene), scales = "free") +
-  geom_bar(stat = "identity") + 
-  facet_wrap(~ Gene, nrow=10, ncol=10, scales = "free") + 
-  #theme(axis.text.x = element_text(angle = 90, size = 14, colour = "black", vjust = 0.5, hjust = 1, face= "bold"), 
-  #      axis.title.y = element_text(size = 16, face = "bold"), legend.title = element_text(size = 16, face = "bold"), 
-  #      legend.text = element_text(size = 12, face = "bold", colour = "black"), 
-  #      axis.text.y = element_text(colour = "black", size = 12, face = "bold")) + 
-  scale_y_continuous(trans='log10') +
-  guides(fill="none") +
-  xlab("Ratio")+
-  ylab("Count")
-p0_plot
-
-ggsave("p0_plots.tiff", plot=p0_plot, device=tiff, width=30, height=15, units=c("in"))
+pair <- as.data.frame(sapply(df, function(x) head(row.names(df)[order(x, decreasing = TRUE)],1)))
+pair
+df
+write.csv(df, "human_strain_unique_amr_gene_number.csv")
 
 
-p2_plot = ggplot(melted_p2, aes(x = variable, fill = Gene, y = value)) + 
-  #facet_grid(vars(Gene), scales = "free") +
-  geom_bar(stat = "identity") + 
-  facet_wrap(~ Gene, nrow=10, ncol=10, scales = "free") + 
-  #theme(axis.text.x = element_text(angle = 90, size = 14, colour = "black", vjust = 0.5, hjust = 1, face= "bold"), 
-  #      axis.title.y = element_text(size = 16, face = "bold"), legend.title = element_text(size = 16, face = "bold"), 
-  #      legend.text = element_text(size = 12, face = "bold", colour = "black"), 
-  #      axis.text.y = element_text(colour = "black", size = 12, face = "bold")) + 
-  scale_y_continuous(trans='log10') +
-  guides(fill="none") +
-  xlab("Ratio")+
-  ylab("Count")
-p2_plot
+##Strain pool##
+cluster <- plot_data[,4:5]
+fit <- kmeans(cluster, 4)
+cluster_result <- fviz_cluster(fit, data = cluster)
+fit$cluster
+with_group <- cbind(data, group = fit$cluster)
+with_group <- with_group[1:29,]
 
-ggsave("p2_plots.tiff", plot=p2_plot, device=tiff, width=30, height=15, units=c("in"))
+df_strain <- data.frame(matrix(ncol=3, nrow = ))
+colnames(df_strain) <- row.names(data)[1:29]
+rownames(df_strain) <- row.names(data)[1:29]
+group1 <- with_group[with_group$group ==1,]
+group2 <- with_group[with_group$group ==2,]
+group3 <- with_group[with_group$group ==3,]
 
+group1_optimal = NULL
+for (i in 1:8){
+  a = rbind(group2[i,-151],group1[,-151])
+  for (z in 2:ncol(a)){
+    if(a[1,z] == 1 & sum(a[-1,z]) == 0) {group1_optimal[z-1]= 1}
+    else{group1_optimal[z-1] = 0}
+  }
+  print(sum(b))
+}
+
+  
+  
 
 

@@ -23,6 +23,7 @@ p <- ggplot(plot_data, aes(x=x, y=y, color=Species)) +
 p
 ggsave("MCA.tiff", plot = p, device = "tiff", width = 7.5, height = 5, units = "in")
 
+#Human fecal samples clustering
 data[] <- lapply(data, function(x) gsub("P", "1", x))
 data[] <- lapply(data, function(x) gsub("A", "0", x))
 for(i in 2:150){
@@ -52,7 +53,7 @@ df
 pair <- as.data.frame(sapply(df, function(x) head(row.names(df)[order(x, decreasing = TRUE)],1)))
 pair
 df
-write.csv(df, "human_strain_unique_amr_gene_number.csv")
+write.csv(df, "table.csv")
 
 
 ##Strain pool##

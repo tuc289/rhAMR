@@ -8,7 +8,7 @@ This Repository will be used to archive essential script for rhAMR sequencing an
 
 #### 1. Whole genome sequencing assembly and AMR gene alignment to Megares (v2) database
 
-Genome assemblies were done by running i) Trimmomatic 2) SPAdes and evaluated by i) fastqc ii) Quast iii) BWA, samtools (for calculating average coverage), followed by local pipeline ([ShortReadAssembly.sh](https://github.com/tuc289/rhAMR/ShortReadAssembly.sh)
+Genome assemblies were done by running i) Trimmomatic 2) SPAdes and evaluated by i) fastqc ii) Quast iii) BWA, samtools (for calculating average coverage), using local pipeline ([ShortReadAssembly.sh](https://github.com/tuc289/rhAMR/ShortReadAssembly.sh)
 ). 
 
 AMR gene alignmnet were done by Abricate (in local computer)

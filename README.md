@@ -88,7 +88,7 @@ nextflow run main_AmrPlusPlus_v2.nf -profile local
                                      --output output --threshold 0
 ```
 ##### Check the results
-The program will generate multiple directories after it is completed
+The program will generate multiple directories once it is done.
 ```
 Some notable results 
 RunResistome - .type.tsv, .class.tsv, .gene.tsv, .mechanism.tsv for individual samples (#of Hits)

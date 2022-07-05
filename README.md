@@ -44,7 +44,7 @@ $ export PATH=$PATH:$(pwd)
 
 1. In case you installed all the dependencies in local directory, you should add all of them into your PATH variable, or provide absolute path in the local configuration file **(config/local.config). 
 
-2. If you are using **cond** , it could be easier to configure. First, check if all the dependencies were installed properly. Now, open the configure file **(config/local.config)** and edit as below.  
+2. If you are using **conda** , it could be easier to configure. First, check if all the dependencies were installed properly. Now, open the configure file **(config/local.config)** and edit as below.  
 
 ```
 // The location of each dependency binary needs to be specified here.

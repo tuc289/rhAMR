@@ -4,7 +4,6 @@ This Repository will be used to archive essential script for rhAMR sequencing an
 
 ## Getting start
 
-### Table of contents
 
 #### 1. Whole genome sequencing assembly and AMR gene alignment to Megares (v2) database
 

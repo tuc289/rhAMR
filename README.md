@@ -1,7 +1,5 @@
 # rhAMR analysis archive 
 
-This Repository will be used to archive essential script for rhAMR sequencing analysis
-
 ## Getting start
 
 
@@ -24,7 +22,7 @@ abricate --summary results.tab > summary.tab
 
 #### 2. Human fecal metagenomics samples processing and AMR gene alignment (MG-Rast)
 
-Raw sequences were uploadted to MG-Rast for AMR gene detection (This step can be done using AMRplusplus2, is it better to switch or not?)
+Raw sequences were uploadted to MG-Rast for AMR gene detection (Not to self - This step can be done using AMRplusplus2, is it better to switch or not?)
 
 #### 3. rhAMR data analysis by AMRplusplus2
 
@@ -77,8 +75,6 @@ process {
 }
 ```
 
-Now, open "main_AmrPlusPlus_v2.nf", and delete ${JAVA} from line 74.
-
 ##### Running AmrPlusPlus2
 
 ```
@@ -87,7 +83,8 @@ nextflow run main_AmrPlusPlus_v2.nf -profile local
                                      --output output --threshold 0
 ```
 ##### Check the results
-The program will generate multiple directories once it is done.
+The program will generate multiple directories
+
 ```
 Some notable results 
 RunResistome - .type.tsv, .class.tsv, .gene.tsv, .mechanism.tsv for individual samples (#of Hits)
@@ -99,7 +96,7 @@ AlignToAMR - .bam and .sam file abouot alignment results from reads to the datab
 
 First, AMR_analytic_matrix.csv should be modified for loading it to R (i.e., remove unwanted column, seperate "|" deliminated column into multiple for better classification
 
-The, save it as .csv file and load it into R, and manipulate it for plotting
+Then, save it as .csv file and load it into R, and manipulate it for plotting
 ```
 for_R <- read.table("~/Downloads/REsistomeResults/AMR_analytic_matrix.csv", sep=",", header=T, row.names=1)
 str(for_R)
@@ -108,7 +105,7 @@ colnames(for_R) <- c("Type", "Class", "Mechanism", "Gene", "p0_1:100", "p0_1:100
 for_plot <- for_R[,4:11]
 ```
 
-Now, extract targeted genes for LOD analysis
+Now, extract targeted genes for LOD analysis - List of those genes were identified based on the Abricate results above
 ```
 p0_gene_list <- c("ACRA", "ACRB", "ACRD", "ACRE", "ACRF", "ACRS", "AMPH", "ASMA", "BACA", 
                   "BAER", "BAES", "BLAEC", "CATA", "CPXAR", "CRP", "DFRA", "EMRA", "EMRB", "EMRD",
